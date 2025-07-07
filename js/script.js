@@ -51,6 +51,7 @@ function setupMouseLock() {
         // Only request pointer lock if clicking directly on canvas (not UI elements)
         if (!isMouseLocked && 
             !e.target.closest('#instruction-content') && 
+            !e.target.closest('close-instructions') &&
             !e.target.closest('#exhibit-ui') &&
             !e.target.closest('#video-container')) {
             canvas.requestPointerLock = canvas.requestPointerLock || 
@@ -980,7 +981,6 @@ function createInstructionButton() {
     
     // Close instructions when button is clicked
     document.getElementById('instruction-content')?.addEventListener('click', (e) => {
-        e.stopPropagation();
         if (e.target.id === 'close-instructions') {
 
             instructionContent.style.display = 'none';

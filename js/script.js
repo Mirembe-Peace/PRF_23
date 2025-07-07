@@ -970,18 +970,15 @@ function createInstructionButton() {
     
     // Toggle instructions when button is clicked
     instructionButton.addEventListener('click', () => {
-
+        e.stopPropagation();
         if (instructionContent.style.display === 'none') {
             instructionContent.style.display = 'block';
-            if (isMouseLocked) {
-                document.exitPointerLock();
-            }
-            
             }
     });
     
     // Close instructions when button is clicked
     document.getElementById('instruction-content')?.addEventListener('click', (e) => {
+        e.stopPropagation();
         if (e.target.id === 'close-instructions') {
         else {
             instructionContent.style.display = 'none';

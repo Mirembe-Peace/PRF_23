@@ -928,6 +928,78 @@ new RGBELoader()
         });
     });
 
+    //instruction button
+function createInstructionButton() {
+    const instructionButton = document.createElement('div');
+    instructionButton.id = 'instruction-button';
+    instructionButton.innerHTML = 'Help';
+    instructionButton.title = 'Show instructions';
+    
+    // Create instruction content (previously in the popup)
+    const instructionContent = document.createElement('div');
+    instructionContent.id = 'instruction-content';
+    instructionContent.style.display = 'none';
+    instructionContent.style.position = 'fixed';
+    instructionContent.style.top = '50%';
+    instructionContent.style.left = '50%';
+    instructionContent.style.transform = 'translate(-50%, -50%)';
+    instructionContent.style.backgroundColor = 'rgba(0,0,0,0.8)';
+    instructionContent.style.color = 'white';
+    instructionContent.style.padding = '20px';
+    instructionContent.style.borderRadius = '10px';
+    instructionContent.style.zIndex = '1001';
+    instructionContent.style.maxWidth = '80%';
+    instructionContent.style.maxHeight = '80%';
+    instructionContent.style.overflow = 'auto';
+    
+    instructionContent.innerHTML = `
+        <h2>Welcome to the Pearl Rhythm Virtual Museum! Here's how to navigate:</h2>
+            <p>With desktop: Use the following keys to navigate:</p>
+            <ul>
+                <li><strong>W</strong>: Move forward</li>
+                <li><strong>S</strong>: Move backward</li>
+                <li><strong>A</strong>: Move left</li>
+                <li><strong>D</strong>: Move right</li>
+                <li><strong>Q</strong>: Move up</li>
+                <li><strong>E</strong>: Move down</li>
+                <li><strong>Mouse</strong>: Look around</li>
+                <li><strong>Esc</strong>: To return the cursor</li>
+                <li><strong>Click on the artifacts and pictures to reveal details</strong></li>
+            </ul>
+        
+        <button id="close-instructions" style="margin-top: 15px; padding: 8px 16px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer;">Got it!</button>
+    `;
+    
+    document.body.appendChild(instructionContent);
+    
+    // Toggle instructions when button is clicked
+    instructionButton.addEventListener('click', () => {
+        if (instructionContent.style.display === 'none') {
+            instructionContent.style.display = 'block';
+            // Exit pointer lock if active
+            if (isMouseLocked) {
+                document.exitPointerLock();
+            }
+        } else {
+            instructionContent.style.display = 'none';
+        }
+    });
+    
+    // Close instructions when button is clicked
+    document.getElementById('instruction-content')?.addEventListener('click', (e) => {
+        if (e.target.id === 'close-instructions') {
+            instructionContent.style.display = 'none';
+        }
+    });
+    
+    document.body.appendChild(instructionButton);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    createHomeButton();
+    createInstructionButton(); 
+});
+
 renderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio)); // Cap pixel ratio
 
 let clock = new THREE.Clock();
@@ -949,12 +1021,5 @@ animate();
 
 document.addEventListener('DOMContentLoaded', function() {
     createHomeButton();
-    
-    const popup = document.getElementById('instructionPopup');
-    if (popup) {
-        popup.style.display = 'flex';
-        document.getElementById('closePopup').addEventListener('click', function() {
-            popup.style.display = 'none';
-        });
-    }
+    createInstructionButton();
 });

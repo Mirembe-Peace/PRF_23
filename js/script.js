@@ -935,7 +935,7 @@ function createInstructionButton() {
     instructionButton.innerHTML = 'How to Navigate';
     instructionButton.title = 'Show instructions';
     
-    // Create instruction content
+    // Create instruction content (previously in the popup)
     const instructionContent = document.createElement('div');
     instructionContent.id = 'instruction-content';
     instructionContent.style.display = 'none';
@@ -973,29 +973,25 @@ function createInstructionButton() {
     document.body.appendChild(instructionContent);
     
     // Toggle instructions when button is clicked
-    instructionButton.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent this click from being interpreted as a canvas click
-        instructionContent.style.display = 'block';
+    instructionButton.addEventListener('click', () => {
+        if (instructionContent.style.display === 'none') {
+            
+            instructionContent.style.display = 'block';
+            }
     });
     
-    // Add event listener after the content is added to DOM
-    const closeButton = instructionContent.querySelector('#close-instructions');
-    if (closeButton) {
-        closeButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            instructionContent.style.display = 'none';
-        });
-    }
-    
-    // Close when clicking outside the content
-    instructionContent.addEventListener('click', (e) => {
-        if (e.target === instructionContent) {
+    // Close instructions when button is clicked
+    document.getElementById('instruction-content')?.addEventListener('click', (e) => {
+        if (e.target.id === 'close-instructions') {
+             e.stopPropagation();
             instructionContent.style.display = 'none';
         }
+        
     });
     
     document.body.appendChild(instructionButton);
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
     createHomeButton();

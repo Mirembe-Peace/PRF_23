@@ -928,7 +928,7 @@ new RGBELoader()
 function createInstructionButton() {
     const instructionButton = document.createElement('div');
     instructionButton.id = 'instruction-button';
-    instructionButton.innerHTML = 'Help';
+    instructionButton.innerHTML = 'How to Navigate';
     instructionButton.title = 'Show instructions';
     
     // Create instruction content (previously in the popup)
@@ -984,7 +984,12 @@ function createInstructionButton() {
     // Close instructions when button is clicked
     document.getElementById('instruction-content')?.addEventListener('click', (e) => {
         if (e.target.id === 'close-instructions') {
+             if (isMouseLocked) {
+                document.exitPointerLock();
+            }
+        else {
             instructionContent.style.display = 'none';
+        }
         }
     });
     

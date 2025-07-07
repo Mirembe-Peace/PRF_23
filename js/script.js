@@ -970,14 +970,14 @@ function createInstructionButton() {
     
     // Toggle instructions when button is clicked
     instructionButton.addEventListener('click', () => {
+            if (isMouseLocked) {
+                document.exitPointerLock();
         if (instructionContent.style.display === 'none') {
             instructionContent.style.display = 'block';
             // Exit pointer lock if active
-            if (isMouseLocked) {
-                document.exitPointerLock();
+        
             }
-        } else {
-            instructionContent.style.display = 'none';
+     
         }
     });
     

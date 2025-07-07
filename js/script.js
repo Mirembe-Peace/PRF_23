@@ -980,10 +980,10 @@ function createInstructionButton() {
     document.getElementById('instruction-content')?.addEventListener('click', (e) => {
         e.stopPropagation();
         if (e.target.id === 'close-instructions') {
-        else {
+
             instructionContent.style.display = 'none';
         }
-        }
+        
     });
     
     document.body.appendChild(instructionButton);

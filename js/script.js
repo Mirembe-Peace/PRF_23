@@ -974,8 +974,8 @@ function createInstructionButton() {
                 document.exitPointerLock();
         if (instructionContent.style.display === 'none') {
             instructionContent.style.display = 'block';
-            // Exit pointer lock if active
-        
+            document.exitPointerLock();
+            
             }
      
         }

@@ -47,15 +47,18 @@ let previousMouseY = 0;
 
 // Setup mouse lock
 function setupMouseLock() {
-    document.addEventListener('click', () => {
-        if (!isMouseLocked) {
+       canvas.addEventListener('click', (e) => {
+        // Only request pointer lock if clicking directly on canvas (not UI elements)
+        if (!isMouseLocked && 
+            !e.target.closest('#instruction-content') && 
+            !e.target.closest('#exhibit-ui') &&
+            !e.target.closest('#video-container')) {
             canvas.requestPointerLock = canvas.requestPointerLock || 
-                                       canvas.mozRequestPointerLock || 
-                                       canvas.webkitRequestPointerLock;
+                                     canvas.mozRequestPointerLock || 
+                                     canvas.webkitRequestPointerLock;
             canvas.requestPointerLock();
         }
     });
-
     document.addEventListener('pointerlockchange', lockChangeAlert, false);
     document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
     document.addEventListener('webkitpointerlockchange', lockChangeAlert, false);
@@ -969,8 +972,7 @@ function createInstructionButton() {
     document.body.appendChild(instructionContent);
     
     // Toggle instructions when button is clicked
-    instructionButton.addEventListener('click', (e) => {
-        e.stopPropagation();
+    instructionButton.addEventListener('click', () => {
         if (instructionContent.style.display === 'none') {
             instructionContent.style.display = 'block';
             }

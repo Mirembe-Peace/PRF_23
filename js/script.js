@@ -88,11 +88,7 @@ function onMouseMove(e) {
     // Horizontal rotation (left/right)
     camera.rotation.y -= movementX * lookSpeed;
 
-    // Vertical rotation (up/down)
-    camera.rotation.x -= movementY * lookSpeed;
-
-    // Limit vertical rotation to prevent over-rotation
-    camera.rotation.x = Math.max(-verticalLookLimit, Math.min(verticalLookLimit, camera.rotation.x));
+    camera.rotation.x = 0;
 }
 
 // Keyboard controls

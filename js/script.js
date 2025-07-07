@@ -972,9 +972,10 @@ function createInstructionButton() {
     instructionButton.addEventListener('click', () => {
 
         if (instructionContent.style.display === 'none') {
-
-            document.exitPointerLock();
             instructionContent.style.display = 'block';
+            if (isMouseLocked) {
+                document.exitPointerLock();
+            }
             
             }
     });
@@ -982,9 +983,6 @@ function createInstructionButton() {
     // Close instructions when button is clicked
     document.getElementById('instruction-content')?.addEventListener('click', (e) => {
         if (e.target.id === 'close-instructions') {
-             if (isMouseLocked) {
-                document.exitPointerLock();
-            }
         else {
             instructionContent.style.display = 'none';
         }

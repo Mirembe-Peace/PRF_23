@@ -969,7 +969,7 @@ function createInstructionButton() {
     document.body.appendChild(instructionContent);
     
     // Toggle instructions when button is clicked
-    instructionButton.addEventListener('click', () => {
+    instructionButton.addEventListener('click', (e) => {
         e.stopPropagation();
         if (instructionContent.style.display === 'none') {
             instructionContent.style.display = 'block';

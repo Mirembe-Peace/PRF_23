@@ -624,7 +624,7 @@ function showExhibit(data) {
             }
             
             const model = gltf.scene;
-            model.scale.copy(data.modelScale);
+            model.scale.set(0, 0, 0);
             model.position.copy(data.modelOffset);
             scene.add(model);
             

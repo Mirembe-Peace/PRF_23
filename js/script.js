@@ -98,25 +98,21 @@ function onMouseMove(e) {
 
 // Keyboard controls
 function setupKeyboardControls() {
-    document.addEventListener('keydown', (e) => {
-        switch (e.key.toLowerCase()) {
-            case 'w': movement.forward = true; break;
-            case 's': movement.backward = true; break;
-            case 'a': movement.left = true; break;
-            case 'd': movement.right = true; break;
-            case 'q': movement.up = true; break;
-            case 'e': movement.down = true; break;
+    document.addEventListener('keydown', (event) => {
+        switch (event.code()) {
+            case 'ArrowUp': movement.forward = true; break;
+            case 'ArrowDown': movement.backward = true; break;
+            case 'ArrowLeft': movement.left = true; break;
+            case 'ArrowRight': movement.right = true; break;
         }
     });
 
-    document.addEventListener('keyup', (e) => {
-        switch (e.key.toLowerCase()) {
-            case 'w': movement.forward = false; break;
-            case 's': movement.backward = false; break;
-            case 'a': movement.left = false; break;
-            case 'd': movement.right = false; break;
-            case 'q': movement.up = false; break;
-            case 'e': movement.down = false; break;
+    document.addEventListener('keyup', (event) => {
+        switch (event.code()) {
+            case 'ArrowUp': movement.forward = false; break;
+            case 'ArrowDown': movement.backward = false; break;
+            case 'ArrowLeft': movement.left = false; break;
+            case 'ArrowRight': movement.right = false; break;
         }
     });
 }
@@ -139,14 +135,6 @@ function updateMovement(delta) {
     }
     if (movement.right) {
         camera.translateX(actualMoveSpeed);
-    }
-
-    // Up/down movement
-    if (movement.up) {
-        camera.position.y += actualMoveSpeed;
-    }
-    if (movement.down) {
-        camera.position.y -= actualMoveSpeed;
     }
 }
 

@@ -886,36 +886,58 @@ const loadingManager = new THREE.LoadingManager(
     }
 );
 
-// Load HDR
-new RGBELoader()
-    .setPath('https://storage.googleapis.com/pearl-artifacts-cdn/museum_model/')
-    .load('environment.hdr', function (texture) {
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        scene.background = texture;
-        scene.environment = texture;
-                        
-        const loader = new GLTFLoader(loadingManager);
-        loader.load('https://storage.googleapis.com/pearl-artifacts-cdn/museum_model/museum_test_1blend.gltf', (gltf) => {
-            const model = gltf.scene;
-            model.position.set(0, 0, 0);
-            model.scale.set(2, 2, 2);
-            scene.add(model);
-
-            createExhibitHotspots();
-            createPictureHotspots();
+// Loading the HDR environment map and museum model
+if (!isMobile) {
+    new RGBELoader()
+        .setPath('https://storage.googleapis.com/pearl-artifacts-cdn/museum_model/')
+        .load('environment.hdr', function (texture) {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            scene.background = texture;
+            scene.environment = texture;
             
-            // Setup controls after everything is loaded
-            setupMouseLock();
-            setupKeyboardControls();
-            initControls();
+            // Load museum model after environment is set
+            const loader = new GLTFLoader(loadingManager);
+            loader.load('https://storage.googleapis.com/pearl-artifacts-cdn/museum_model/museum_test_1blend.gltf', (gltf) => {
+                const model = gltf.scene;
+                model.position.set(0, 0, 0);
+                model.scale.set(2, 2, 2);
+                scene.add(model);
 
-             },
-    undefined, // Progress callback
-    (error) => {
-        console.error('Error loading museum model:', error);
-
+                createExhibitHotspots();
+                createPictureHotspots();
+                
+            }, undefined, (error) => {
+                console.error('Error loading museum model:', error);
+            });
+        }, undefined, (error) => {
+            console.error('Error loading HDR environment:', error);
+            // Even if HDR fails, still load the museum model
+            loadMuseumModel();
         });
+} else {
+    // On mobile, just load the museum model without environment texture
+    loadMuseumModel();
+}
+
+function loadMuseumModel() {
+    const loader = new GLTFLoader(loadingManager);
+    loader.load('https://storage.googleapis.com/pearl-artifacts-cdn/museum_model/museum_test_1blend.gltf', (gltf) => {
+        const model = gltf.scene;
+        model.position.set(0, 0, 0);
+        model.scale.set(2, 2, 2);
+        scene.add(model);
+
+        
+        createExhibitHotspots();
+        createPictureHotspots();
+        
+        
+        
+    
+    }, undefined, (error) => {
+        console.error('Error loading museum model:', error);
     });
+}
 
     //instruction button
 function createInstructionButton() {
@@ -942,19 +964,26 @@ function createInstructionButton() {
     instructionContent.style.overflow = 'auto';
     
     instructionContent.innerHTML = `
-        <h2>Welcome to the Pearl Rhythm Virtual Museum! Here's how to navigate:</h2>
-            <p>With desktop: Use the following keys to navigate:</p>
-            <ul>
-                <li><strong>W</strong>: Move forward</li>
-                <li><strong>S</strong>: Move backward</li>
-                <li><strong>A</strong>: Move left</li>
-                <li><strong>D</strong>: Move right</li>
-                <li><strong>Q</strong>: Move up</li>
-                <li><strong>E</strong>: Move down</li>
-                <li><strong>Mouse</strong>: Look around</li>
-                <li><strong>Esc</strong>: To return the cursor</li>
-                <li><strong>Click on the artifacts and pictures to reveal details</strong></li>
-            </ul>
+              <h2>Welcome to the Pearl Rhythm Virtual Museum! Here's how to navigate:</h2>
+    ${isMobile ? `
+        <p>With mobile:</p>
+        <ul>
+            <li><strong>Touch and drag</strong>: Look around</li>
+            <li><strong>Virtual joystick</strong>: Move around (if implemented)</li>
+            <li><strong>Tap on artifacts and pictures</strong>: Reveal details</li>
+        </ul>
+    ` : `
+        <p>With desktop:</p>
+        <ul>
+            <li><strong>Arrow Up</strong>: Move forward</li>
+            <li><strong>Arrow Down</strong>: Move backward</li>
+            <li><strong>Arrow Left</strong>: Move left</li>
+            <li><strong>Arrow Right</strong>: Move right</li>
+            <li><strong>Mouse</strong>: Look around</li>
+            <li><strong>Esc</strong>: To return the cursor</li>
+            <li><strong>Click on the artifacts and pictures to reveal details</strong></li>
+        </ul>
+    `}
         
         <button id="close-instructions" style="margin-top: 15px; padding: 8px 16px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer;">Got it!</button>
     `;

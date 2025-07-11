@@ -18,8 +18,9 @@ const totalModels = 1; // Update this if you load more models
 
 // Camera setup
 const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(80.21954626648072, 39.0888887446244, 278.2953267000209);
-camera.rotation.set(-0.17155681062643696, -0.013253588181707663, -0.0022962445718362895);
+camera.position.y = 45;
+camera.position.x = 84;
+camera.position.z = 288;
 
 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);

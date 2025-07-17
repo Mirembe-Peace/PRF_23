@@ -1,3 +1,4 @@
+@ -0,0 +1,960 @@
 import * as THREE from 'three';
 // import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -18,16 +19,14 @@ const totalModels = 1; // Update this if you load more models
 
 // Camera setup
 const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.y = 45;
-camera.position.x = 84;
-camera.position.z = 288;
+camera.position.set(80.21954626648072, 39.0888887446244, 278.2953267000209);
+camera.rotation.set(-0.17155681062643696, -0.013253588181707663, -0.0022962445718362895);
 
 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
 // First-person controls variables
-
 const moveSpeed = 30;
 const lookSpeed = 0.002;
 const verticalLookLimit = Math.PI / 3; // Limit vertical look angle
@@ -49,19 +48,15 @@ let previousMouseY = 0;
 
 // Setup mouse lock
 function setupMouseLock() {
-       canvas.addEventListener('click', (e) => {
-        // Only request pointer lock if clicking directly on canvas (not UI elements)
-        if (!isMouseLocked && 
-            !e.target.closest('#instruction-content') && 
-            !e.target.closest('close-instructions') &&
-            !e.target.closest('#exhibit-ui') &&
-            !e.target.closest('#video-container')) {
+    document.addEventListener('click', () => {
+        if (!isMouseLocked) {
             canvas.requestPointerLock = canvas.requestPointerLock || 
-                                     canvas.mozRequestPointerLock || 
-                                     canvas.webkitRequestPointerLock;
+                                       canvas.mozRequestPointerLock || 
+                                       canvas.webkitRequestPointerLock;
             canvas.requestPointerLock();
         }
     });
+
     document.addEventListener('pointerlockchange', lockChangeAlert, false);
     document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
     document.addEventListener('webkitpointerlockchange', lockChangeAlert, false);
@@ -94,66 +89,34 @@ function onMouseMove(e) {
     // Horizontal rotation (left/right)
     camera.rotation.y -= movementX * lookSpeed;
 
-    camera.rotation.x = 0;
+    // Vertical rotation (up/down)
+    camera.rotation.x -= movementY * lookSpeed;
+
+    // Limit vertical rotation to prevent over-rotation
+    camera.rotation.x = Math.max(-verticalLookLimit, Math.min(verticalLookLimit, camera.rotation.x));
 }
 
 // Keyboard controls
 function setupKeyboardControls() {
-    document.addEventListener('keydown', (event) => {
-        switch (event.code) {  // Removed parentheses
-            case 'ArrowUp': 
-                movement.forward = true; 
-                break;
-            case 'ArrowDown': 
-                movement.backward = true; 
-                break;
-            case 'ArrowLeft': 
-                movement.left = true; 
-                break;
-            case 'ArrowRight': 
-                movement.right = true; 
-                break;
-            case 'KeyW':  // Add WASD support as alternative
-                movement.forward = true;
-                break;
-            case 'KeyS':
-                movement.backward = true;
-                break;
-            case 'KeyA':
-                movement.left = true;
-                break;
-            case 'KeyD':
-                movement.right = true;
-                break;
+    document.addEventListener('keydown', (e) => {
+        switch (e.key.toLowerCase()) {
+            case 'w': movement.forward = true; break;
+            case 's': movement.backward = true; break;
+            case 'a': movement.left = true; break;
+            case 'd': movement.right = true; break;
+            case 'q': movement.up = true; break;
+            case 'e': movement.down = true; break;
         }
     });
 
-    document.addEventListener('keyup', (event) => {
-        switch (event.code) {  // Removed parentheses
-            case 'ArrowUp': 
-                movement.forward = false; 
-                break;
-            case 'ArrowDown': 
-                movement.backward = false; 
-                break;
-            case 'ArrowLeft': 
-                movement.left = false; 
-                break;
-            case 'ArrowRight': 
-                movement.right = false; 
-                break;
-            case 'KeyW':  // Add WASD support as alternative
-                movement.forward = false;
-                break;
-            case 'KeyS':
-                movement.backward = false;
-                break;
-            case 'KeyA':
-                movement.left = false;
-                break;
-            case 'KeyD':
-                movement.right = false;
-                break;
+    document.addEventListener('keyup', (e) => {
+        switch (e.key.toLowerCase()) {
+            case 'w': movement.forward = false; break;
+            case 's': movement.backward = false; break;
+            case 'a': movement.left = false; break;
+            case 'd': movement.right = false; break;
+            case 'q': movement.up = false; break;
+            case 'e': movement.down = false; break;
         }
     });
 }
@@ -176,6 +139,14 @@ function updateMovement(delta) {
     }
     if (movement.right) {
         camera.translateX(actualMoveSpeed);
+    }
+
+    // Up/down movement
+    if (movement.up) {
+        camera.position.y += actualMoveSpeed;
+    }
+    if (movement.down) {
+        camera.position.y -= actualMoveSpeed;
     }
 }
 
@@ -654,7 +625,7 @@ function showExhibit(data) {
             }
             
             const model = gltf.scene;
-            model.scale.set(0, 0, 0);
+            model.scale.copy(data.modelScale);
             model.position.copy(data.modelOffset);
             scene.add(model);
             
@@ -927,135 +898,36 @@ const loadingManager = new THREE.LoadingManager(
     }
 );
 
-// Loading the HDR environment map and museum model
-if (!isMobile) {
-    new RGBELoader()
-        .setPath('https://storage.googleapis.com/pearl-artifacts-cdn/')
-        .load('environment.hdr', function (texture) {
-            texture.mapping = THREE.EquirectangularReflectionMapping;
-            scene.background = texture;
-            scene.environment = texture;
+// Load HDR
+new RGBELoader()
+    .setPath('https://storage.googleapis.com/pearl-artifacts-cdn/')
+    .load('environment.hdr', function (texture) {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        scene.background = texture;
+        scene.environment = texture;
+                        
+        const loader = new GLTFLoader(loadingManager);
+        loader.load('https://storage.googleapis.com/pearl-artifacts-cdn/museum_test_1blend.gltf', (gltf) => {
+            const model = gltf.scene;
+            model.position.set(0, 0, 0);
+            model.scale.set(2, 2, 2);
+            scene.add(model);
+
+            createExhibitHotspots();
+            createPictureHotspots();
             
-            // Load museum model after environment is set
-            const loader = new GLTFLoader(loadingManager);
-            loader.load('https://storage.googleapis.com/pearl-artifacts-cdn/museum_test_1blend.gltf', (gltf) => {
-                const model = gltf.scene;
-                model.position.set(0, 0, 0);
-                model.scale.set(2, 2, 2);
-                scene.add(model);
+            // Setup controls after everything is loaded
+            setupMouseLock();
+            setupKeyboardControls();
+            initControls();
 
-                createExhibitHotspots();
-                createPictureHotspots();
-                
-            }, undefined, (error) => {
-                console.error('Error loading museum model:', error);
-            });
-        }, undefined, (error) => {
-            console.error('Error loading HDR environment:', error);
-            // Even if HDR fails, still load the museum model
-            loadMuseumModel();
-        });
-} else {
-    // On mobile, just load the museum model without environment texture
-    loadMuseumModel();
-}
-
-function loadMuseumModel() {
-    const loader = new GLTFLoader(loadingManager);
-    loader.load('https://storage.googleapis.com/pearl-artifacts-cdn/museum_model/museum_test_1blend.gltf', (gltf) => {
-        const model = gltf.scene;
-        model.position.set(0, 0, 0);
-        model.scale.set(2, 2, 2);
-        scene.add(model);
-
-        
-        createExhibitHotspots();
-        createPictureHotspots();
-        
-        
-        
-    
-    }, undefined, (error) => {
+             },
+    undefined, // Progress callback
+    (error) => {
         console.error('Error loading museum model:', error);
-    });
-}
 
-    //instruction button
-function createInstructionButton() {
-    const instructionButton = document.createElement('div');
-    instructionButton.id = 'instruction-button';
-    instructionButton.innerHTML = 'How to Navigate';
-    instructionButton.title = 'Show instructions';
-    
-    // Create instruction content (previously in the popup)
-    const instructionContent = document.createElement('div');
-    instructionContent.id = 'instruction-content';
-    instructionContent.style.display = 'none';
-    instructionContent.style.position = 'fixed';
-    instructionContent.style.top = '50%';
-    instructionContent.style.left = '50%';
-    instructionContent.style.transform = 'translate(-50%, -50%)';
-    instructionContent.style.backgroundColor = 'rgba(0,0,0,0.8)';
-    instructionContent.style.color = 'white';
-    instructionContent.style.padding = '20px';
-    instructionContent.style.borderRadius = '10px';
-    instructionContent.style.zIndex = '1001';
-    instructionContent.style.maxWidth = '80%';
-    instructionContent.style.maxHeight = '80%';
-    instructionContent.style.overflow = 'auto';
-    
-    instructionContent.innerHTML = `
-              <h2>Welcome to the Pearl Rhythm Virtual Museum! Here's how to navigate:</h2>
-    ${isMobile ? `
-        <p>With mobile:</p>
-        <ul>
-            <li><strong>Touch and drag</strong>: Look around</li>
-            <li><strong>Virtual joystick</strong>: Move around (if implemented)</li>
-            <li><strong>Tap on artifacts and pictures</strong>: Reveal details</li>
-        </ul>
-    ` : `
-        <p>With desktop:</p>
-        <ul>
-            <li><strong>Arrow Up</strong>: Move forward</li>
-            <li><strong>Arrow Down</strong>: Move backward</li>
-            <li><strong>Arrow Left</strong>: Move left</li>
-            <li><strong>Arrow Right</strong>: Move right</li>
-            <li><strong>Mouse</strong>: Look around</li>
-            <li><strong>Esc</strong>: To return the cursor</li>
-            <li><strong>Click on the artifacts and pictures to reveal details</strong></li>
-        </ul>
-    `}
-        
-        <button id="close-instructions" style="margin-top: 15px; padding: 8px 16px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer;">Got it!</button>
-    `;
-    
-    document.body.appendChild(instructionContent);
-    
-    // Toggle instructions when button is clicked
-    instructionButton.addEventListener('click', () => {
-        if (instructionContent.style.display === 'none') {
-            
-            instructionContent.style.display = 'block';
-            }
+        });
     });
-    
-    // Close instructions when button is clicked
-    document.getElementById('instruction-content')?.addEventListener('click', (e) => {
-        if (e.target.id === 'close-instructions') {
-             e.stopPropagation();
-            instructionContent.style.display = 'none';
-        }
-        
-    });
-    
-    document.body.appendChild(instructionButton);
-}
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    createHomeButton();
-    createInstructionButton(); 
-});
 
 renderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio)); // Cap pixel ratio
 
@@ -1063,8 +935,12 @@ let clock = new THREE.Clock();
 let delta = 0;
 
 const animate = () => {
-    updateMovement(delta);
-
+    delta = clock.getDelta();
+    
+    // Update movement if mouse is locked (in first-person mode)
+    if (isMouseLocked) {
+        updateMovement(delta);
+    }
     
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
@@ -1074,5 +950,12 @@ animate();
 
 document.addEventListener('DOMContentLoaded', function() {
     createHomeButton();
-    createInstructionButton();
+    
+    const popup = document.getElementById('instructionPopup');
+    if (popup) {
+        popup.style.display = 'flex';
+        document.getElementById('closePopup').addEventListener('click', function() {
+            popup.style.display = 'none';
+        });
+    }
 });

@@ -92,15 +92,26 @@ function onMouseMove(e) {
     camera.rotation.x = Math.max(-verticalLookLimit, Math.min(verticalLookLimit, camera.rotation.x));
 }
 
-// Keyboard controls
-// Keyboard controls with arrow keys
+// Keyboard controls - ARROW KEYS ONLY
 function setupKeyboardControls() {
     document.addEventListener('keydown', (e) => {
         switch (e.key) {
-            case 'ArrowUp': movement.forward = true; break;
-            case 'ArrowDown': movement.backward = true; break;
-            case 'ArrowLeft': movement.left = true; break;
-            case 'ArrowRight': movement.right = true; break;
+            case 'ArrowUp': 
+                movement.forward = true; 
+                e.preventDefault(); // Prevent default browser behavior (like scrolling)
+                break;
+            case 'ArrowDown': 
+                movement.backward = true; 
+                e.preventDefault();
+                break;
+            case 'ArrowLeft': 
+                movement.left = true; 
+                e.preventDefault();
+                break;
+            case 'ArrowRight': 
+                movement.right = true; 
+                e.preventDefault();
+                break;
         }
     });
 

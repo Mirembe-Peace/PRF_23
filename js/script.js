@@ -1063,7 +1063,6 @@ let clock = new THREE.Clock();
 let delta = 0;
 
 const animate = () => {
-    delta = clock.getDelta();
     updateMovement(delta);
 
     

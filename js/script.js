@@ -27,6 +27,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
 // First-person controls variables
+let controls;
 const moveSpeed = 30;
 const lookSpeed = 0.002;
 const verticalLookLimit = Math.PI / 3; // Limit vertical look angle

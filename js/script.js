@@ -1064,59 +1064,6 @@ let delta = 0;
 
 const animate = () => {
     delta = clock.getDelta();
-    let controls;
-    
- const time = performance.now();
-
-				if ( controls.isMouseLocked === true ) {
-
-					raycaster.ray.origin.copy( controls.object.position );
-					raycaster.ray.origin.y -= 10;
-
-					const intersections = raycaster.intersectObjects( objects, false );
-
-					const onObject = intersections.length > 0;
-
-					const delta = ( time - prevTime ) / 1000;
-
-					velocity.x -= velocity.x * 10.0 * delta;
-					velocity.z -= velocity.z * 10.0 * delta;
-
-					velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
-
-					direction.z = Number( moveForward ) - Number( moveBackward );
-					direction.x = Number( moveRight ) - Number( moveLeft );
-					direction.normalize(); // this ensures consistent movements in all directions
-
-					if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
-					if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
-
-					if ( onObject === true ) {
-
-						velocity.y = Math.max( 0, velocity.y );
-						canJump = true;
-
-					}
-
-					controls.moveRight( - velocity.x * delta );
-					controls.moveForward( - velocity.z * delta );
-
-					controls.object.position.y += ( velocity.y * delta ); // new behavior
-
-					if ( controls.object.position.y < 10 ) {
-
-						velocity.y = 0;
-						controls.object.position.y = 10;
-
-						canJump = true;
-
-					}
-
-				}
-
-				prevTime = time;
-
-                    delta = clock.getDelta();
     updateMovement(delta);
 
     

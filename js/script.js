@@ -99,20 +99,60 @@ function onMouseMove(e) {
 // Keyboard controls
 function setupKeyboardControls() {
     document.addEventListener('keydown', (event) => {
-        switch (event.code()) {
-            case 'ArrowUp': movement.forward = true; break;
-            case 'ArrowDown': movement.backward = true; break;
-            case 'ArrowLeft': movement.left = true; break;
-            case 'ArrowRight': movement.right = true; break;
+        switch (event.code) {  // Removed parentheses
+            case 'ArrowUp': 
+                movement.forward = true; 
+                break;
+            case 'ArrowDown': 
+                movement.backward = true; 
+                break;
+            case 'ArrowLeft': 
+                movement.left = true; 
+                break;
+            case 'ArrowRight': 
+                movement.right = true; 
+                break;
+            case 'KeyW':  // Add WASD support as alternative
+                movement.forward = true;
+                break;
+            case 'KeyS':
+                movement.backward = true;
+                break;
+            case 'KeyA':
+                movement.left = true;
+                break;
+            case 'KeyD':
+                movement.right = true;
+                break;
         }
     });
 
     document.addEventListener('keyup', (event) => {
-        switch (event.code()) {
-            case 'ArrowUp': movement.forward = false; break;
-            case 'ArrowDown': movement.backward = false; break;
-            case 'ArrowLeft': movement.left = false; break;
-            case 'ArrowRight': movement.right = false; break;
+        switch (event.code) {  // Removed parentheses
+            case 'ArrowUp': 
+                movement.forward = false; 
+                break;
+            case 'ArrowDown': 
+                movement.backward = false; 
+                break;
+            case 'ArrowLeft': 
+                movement.left = false; 
+                break;
+            case 'ArrowRight': 
+                movement.right = false; 
+                break;
+            case 'KeyW':  // Add WASD support as alternative
+                movement.forward = false;
+                break;
+            case 'KeyS':
+                movement.backward = false;
+                break;
+            case 'KeyA':
+                movement.left = false;
+                break;
+            case 'KeyD':
+                movement.right = false;
+                break;
         }
     });
 }
@@ -889,7 +929,7 @@ const loadingManager = new THREE.LoadingManager(
 // Loading the HDR environment map and museum model
 if (!isMobile) {
     new RGBELoader()
-        .setPath('https://storage.googleapis.com/pearl-artifacts-cdn/museum_model/')
+        .setPath('https://storage.googleapis.com/pearl-artifacts-cdn/')
         .load('environment.hdr', function (texture) {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.background = texture;
@@ -897,7 +937,7 @@ if (!isMobile) {
             
             // Load museum model after environment is set
             const loader = new GLTFLoader(loadingManager);
-            loader.load('https://storage.googleapis.com/pearl-artifacts-cdn/museum_model/museum_test_1blend.gltf', (gltf) => {
+            loader.load('https://storage.googleapis.com/pearl-artifacts-cdn/museum_test_1blend.gltf', (gltf) => {
                 const model = gltf.scene;
                 model.position.set(0, 0, 0);
                 model.scale.set(2, 2, 2);
@@ -1024,10 +1064,59 @@ let delta = 0;
 const animate = () => {
     delta = clock.getDelta();
     
-    // Update movement if mouse is locked (in first-person mode)
-    if (isMouseLocked) {
-        updateMovement(delta);
-    }
+ const time = performance.now();
+
+				if ( controls.isMouseLocked === true ) {
+
+					raycaster.ray.origin.copy( controls.object.position );
+					raycaster.ray.origin.y -= 10;
+
+					const intersections = raycaster.intersectObjects( objects, false );
+
+					const onObject = intersections.length > 0;
+
+					const delta = ( time - prevTime ) / 1000;
+
+					velocity.x -= velocity.x * 10.0 * delta;
+					velocity.z -= velocity.z * 10.0 * delta;
+
+					velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+
+					direction.z = Number( moveForward ) - Number( moveBackward );
+					direction.x = Number( moveRight ) - Number( moveLeft );
+					direction.normalize(); // this ensures consistent movements in all directions
+
+					if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
+					if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
+
+					if ( onObject === true ) {
+
+						velocity.y = Math.max( 0, velocity.y );
+						canJump = true;
+
+					}
+
+					controls.moveRight( - velocity.x * delta );
+					controls.moveForward( - velocity.z * delta );
+
+					controls.object.position.y += ( velocity.y * delta ); // new behavior
+
+					if ( controls.object.position.y < 10 ) {
+
+						velocity.y = 0;
+						controls.object.position.y = 10;
+
+						canJump = true;
+
+					}
+
+				}
+
+				prevTime = time;
+
+                    delta = clock.getDelta();
+    updateMovement(delta);
+
     
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
